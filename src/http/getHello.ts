@@ -5,6 +5,7 @@ const getHello = async (ctx: Koa.ParameterizedContext<any, Router.IRouterParamCo
 
     ctx.body = {
         error: 0,
+        hello: 'world'
     }
 }
 
