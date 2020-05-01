@@ -1,0 +1,31 @@
+{
+  "name": "DouyuBarrage",
+  "version": "1.0.0",
+  "main": "dist/entry.js",
+  "scripts": {
+    "start": "tsc && cross-env NODE_ENV=production node dist/entry.js",
+    "dev": "cross-env NODE_ENV=development nodemon --watch 'src/**/*' -e ts,tsx --exec 'ts-node' ./src/entry.ts",
+    "lint": "eslint ./src/**",
+    "format": "prettier --config .prettierrc --write ./src/**/*.ts",
+    "precommit": "npm run lint && npm run format"
+  },
+  "author": "Athos",
+  "license": "MIT",
+  "dependencies": {
+    "@types/koa": "^2.11.3",
+    "@types/koa-router": "^7.4.0",
+    "@types/socket.io": "^2.1.4",
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-router": "^8.0.8",
+    "socket.io": "^2.3.0",
+    "ws": "^7.2.5"
+  },
+  "devDependencies": {
+    "@types/log4js": "^2.3.5",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
+    "eslint-config-alloy": "^3.6.0"
+  }
+}
