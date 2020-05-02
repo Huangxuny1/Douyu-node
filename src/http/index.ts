@@ -1,5 +1,3 @@
-import getHello from "./getHello"
+import getHello from './getHello';
 
-export {
-    getHello
-};
+export { getHello };
