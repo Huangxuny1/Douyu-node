@@ -6,6 +6,7 @@ import log4js from './logger';
 import * as HttpRequests from './http';
 import singleReceiveMsgTypes from './websocket/msgtype/singleReceiveMsgTypes';
 import GetBarrage from './websocket/barrage/GetBarrage';
+import GetProxy from './websocket/barrage/GetProxy';
 
 export default class Server {
   private logger = log4js.getLogger('server');
@@ -19,17 +20,21 @@ export default class Server {
     app.use(bodyParser({ multipart: true }));
     app.use(router.routes());
 
-    const io = Socket(
-      app.listen(30001, () => {
-        this.logger.info('server listen on port 30001');
-      })
-    );
+    // const io = Socket(
+    //   app.listen(30001, () => {
+    //     this.logger.info('server listen on port 30001');
+    //   })
+    // );
+    let a = new GetProxy(88660)
+    a.initWSS()
+    console.log("##############################################################################################################")
     GetBarrage.addRoom(74960);
 
-    io.on('connection', socket => {
-      this.logger.info('new connection');
-      new SocketUtil(socket).subscribeEvents();
-    });
+
+    // io.on('connection', socket => {
+    //   this.logger.info('new connection');
+    //   new SocketUtil(socket).subscribeEvents();
+    // });
   };
 
   private addRouter = (router: Router) => {
