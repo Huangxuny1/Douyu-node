@@ -8,6 +8,11 @@ export default class BufferCoder {
   private readLength = 0;
 
   public encode = (str: string) => {
+    this.logger.info("encode : " + str)
+    if (str === "") {
+      this.logger.error(" unable to encode empty str")
+      return
+    }
     let buffer = new ArrayBuffer(0);
     let message = this.concat(this.encoder.encode(str), Uint8Array.of(0));
     let len = 8 + message.length;
@@ -30,7 +35,7 @@ export default class BufferCoder {
 
   public decode = (buf: Buffer, callback: Function) => {
     this.buffer = this.concat(this.buffer, buf).buffer;
-    for (; this.buffer && this.buffer.byteLength > 0; ) {
+    for (; this.buffer && this.buffer.byteLength > 0;) {
       if (0 === this.readLength) {
         if (this.buffer.byteLength < 4) return;
 

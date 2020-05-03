@@ -25,11 +25,8 @@ export default class Server {
     //     this.logger.info('server listen on port 30001');
     //   })
     // );
-    let a = new GetProxy(88660);
-    a.initWSS();
-    console.log(
-      '##############################################################################################################'
-    );
+    // let a = new GetProxy(74960);
+    // a.initWSS();
     GetBarrage.addRoom(74960);
 
     // io.on('connection', socket => {
