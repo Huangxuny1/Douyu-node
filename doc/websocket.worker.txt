@@ -1,0 +1,64 @@
+https://www.douyu.com/webSocket.worker_38a52ea.worker.min.js
+
+
+function() {
+    function BufferCoder() {
+        this.buffer = new ArrayBuffer(0),
+        this.decoder = new TextDecoder,
+        this.encoder = new TextEncoder,
+        this.littleEndian = !0,
+        this.readLength = 0
+    }
+    return BufferCoder.prototype.concat = function() {
+        for (var l = [], n = 0; n < arguments.length; n++)
+            l[n] = arguments[n];
+        return l.reduce(function(l, n) {
+            var u = n instanceof ArrayBuffer ? new Uint8Array(n) : n
+              , e = new Uint8Array(l.length + u.length);
+            return e.set(l, 0),
+            e.set(u, l.length),
+            e
+        }, new Uint8Array(0))
+    }
+    ,
+    BufferCoder.prototype.decode = function(l, n, u) {
+        for (void 0 === u && (u = this.littleEndian),
+        this.buffer = this.concat(this.buffer, l).buffer; this.buffer && this.buffer.byteLength > 0; ) {
+            if (0 === this.readLength) {
+                if (this.buffer.byteLength < 4)
+                    return;
+                this.readLength = new DataView(this.buffer).getUint32(0, u),
+                this.buffer = this.buffer.slice(4)
+            }
+            if (this.buffer.byteLength < this.readLength)
+                return;
+            var e = this.decoder.decode(this.buffer.slice(8, this.readLength - 1));
+            this.buffer = this.buffer.slice(this.readLength),
+            this.readLength = 0,
+            n(e)
+        }
+    }
+    ,
+    BufferCoder.prototype.encode = function(l, n) {
+        postMessage
+        void 0 === n && (n = this.littleEndian);
+        var u = this.concat(this.encoder.encode(l), Uint8Array.of(0))
+          , e = 8 + u.length
+          , r = new DataView(new ArrayBuffer(e + 4))
+          , i = 0;
+        return r.setUint32(i, e, n),
+        i += 4,
+        r.setUint32(i, e, n),
+        i += 4,
+        r.setInt16(i, 689, n),
+        i += 2,
+        r.setInt8(i, 0),
+        i += 1,
+        r.setInt8(i, 0),
+        i += 1,
+        new Uint8Array(r.buffer).set(u, i),
+        r.buffer
+    }
+    ,
+    BufferCoder
+}();

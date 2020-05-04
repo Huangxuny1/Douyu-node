@@ -1,4 +1,5 @@
 import log4js from '../../logger';
+import stt from '../../douyu/stt'
 
 export default class BufferCoder {
   private logger = log4js.getLogger('BufferCoder');
@@ -48,7 +49,7 @@ export default class BufferCoder {
       const str = this.decoder.decode(this.buffer.slice(8, this.readLength - 1));
       this.buffer = this.buffer.slice(this.readLength);
       this.readLength = 0;
-      callback(str);
+      callback(stt.super_decoder(str));
     }
   };
 
