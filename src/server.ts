@@ -27,7 +27,8 @@ export default class Server {
     // );
     // let a = new GetProxy(74960);
     // a.initWSS();
-    GetBarrage.addRoom(74960);
+    GetBarrage.addRoom(88660);
+    GetBarrage.addRoom(88660);
 
     // io.on('connection', socket => {
     //   this.logger.info('new connection');
