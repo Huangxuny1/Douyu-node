@@ -27,7 +27,10 @@ class GetBarrage {
   };
 
   private barrageCallback = (str: any) => {
-    this.logger.info(str);
+  //this.logger.info(str);
+      if(str.type === 'chatmsg'){
+          this.logger.info('%s(lv:%s)[%s:%s]\t: %s',str.nn,str.level,str.bnn,str.bl,str.txt);
+      }
   };
 
   private login = (dyws: Websocket, roomId: string | number) => {

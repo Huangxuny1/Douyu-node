@@ -5,7 +5,7 @@ log4js.configure({
     consoleout: { type: 'console' }
   },
   categories: {
-    default: { appenders: ['consoleout'], level: 'debug' }
+    default: { appenders: ['consoleout'], level: 'info' }
   }
 });
 

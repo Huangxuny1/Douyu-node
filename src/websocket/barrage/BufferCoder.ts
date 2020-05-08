@@ -9,7 +9,7 @@ export default class BufferCoder {
   private readLength = 0;
 
   public encode = (str: string) => {
-    this.logger.info("encode : " + str)
+    this.logger.debug("encode : " + str)
     if (str === "") {
       this.logger.error(" unable to encode empty str")
       return
