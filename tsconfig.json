@@ -4,6 +4,7 @@
     "target": "es2017",
     "noImplicitAny": true,
     "moduleResolution": "node",
+    "allowJs": true,
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
@@ -15,6 +16,7 @@
     }
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "src/jslib/*.js"
   ]
 }
