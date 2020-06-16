@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsc && cross-env NODE_ENV=production node build/index.js",
     "dev": "cross-env NODE_ENV=development nodemon --watch 'src/**/*' -e ts,tsx --exec 'ts-node' ./src/index.ts",
-    "format": "prettier --config .prettierrc --write ./src/**/**/*.ts ./src/**/*.ts ./src/*.ts"
+    "format": "prettier --config .prettierrc --write ./src/**/**/*.ts ./src/**/*.ts ./src/*.ts",
+    "test": "jest"
   },
   "repository": "https://github.com/Huangxuny1/douyu-node.git",
   "author": "AthosZhou",

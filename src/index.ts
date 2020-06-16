@@ -12,8 +12,7 @@ import { DouyuLogin } from './douyu/login'
 let douyu = new DouyuLogin();
 (
     async () => {
-        await douyu.login();
-        let a = await douyu.whoami();
-        logger.debug(a);
+        logger.info(await douyu.login());
+        logger.debug(await douyu.whoami());
     }
 )()

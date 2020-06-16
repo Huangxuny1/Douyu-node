@@ -41,7 +41,7 @@ class DouyuLogin {
             });
     }
 
-    private requestLogin = async (): Promise<any> => {
+    private requestLogin = async (): Promise<object> => {
         return requests
             .post(generatoeCodeUrl)
             .set('Referer', headerReferer)
@@ -58,8 +58,8 @@ class DouyuLogin {
             });
     }
 
-    private checkScan = async (): Promise<any> => {
-        let checkUrl = await this.requestLogin();
+    private checkScan = async (): Promise<object> => {
+        let checkUrl: any = await this.requestLogin();
         return new Promise((resolve, reject) => {
             const checkInterval = setInterval(() => {
                 requests.get(util.format('https://passport.douyu.com/lapi/passport/qrcode/check?time=%s&code=%s',
@@ -87,7 +87,7 @@ class DouyuLogin {
     }
 
     private getCookie = async (): Promise<string[]> => {
-        let data = await this.checkScan();
+        let data: any = await this.checkScan();
 
         return requests.head('https:' + data.data.url + '&callback=appClient_json_callback&_=' + new Date().getTime())
             .set('Accept', 'application/json, text/javascript, */*; q=0.01')
