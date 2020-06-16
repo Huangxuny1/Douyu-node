@@ -1,5 +1,6 @@
-import log4js from '../../logger';
-import stt from '../../douyu/stt'
+import { log4js } from '../global';
+import stt from './STT';
+import {TextDecoder,TextEncoder} from 'util'
 
 export default class BufferCoder {
   private logger = log4js.getLogger('BufferCoder');
@@ -9,10 +10,10 @@ export default class BufferCoder {
   private readLength = 0;
 
   public encode = (str: string) => {
-    this.logger.debug("encode : " + str)
-    if (str === "") {
-      this.logger.error(" unable to encode empty str")
-      return
+    this.logger.debug('encode : ' + str);
+    if (str === '') {
+      this.logger.error(' unable to encode empty str');
+      return;
     }
     let buffer = new ArrayBuffer(0);
     let message = this.concat(this.encoder.encode(str), Uint8Array.of(0));
@@ -34,7 +35,7 @@ export default class BufferCoder {
     return new Uint8Array(r.buffer).set(message, offset), r.buffer;
   };
 
-  public decode = (buf: Buffer, callback: Function) => {
+  public decode = (buf: any, callback: Function) => {
     this.buffer = this.concat(this.buffer, buf).buffer;
     for (; this.buffer && this.buffer.byteLength > 0;) {
       if (0 === this.readLength) {
@@ -49,7 +50,7 @@ export default class BufferCoder {
       const str = this.decoder.decode(this.buffer.slice(8, this.readLength - 1));
       this.buffer = this.buffer.slice(this.readLength);
       this.readLength = 0;
-      callback(stt.super_decoder(str));
+      callback(stt.decode(str));
     }
   };
 
