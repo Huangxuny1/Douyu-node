@@ -1,37 +1,52 @@
-import { log4js } from './global';
+import { log4js, douyu } from './global';
+import Barrage from './websocket/barrageFetcher'
+import ProxyWorker from './websocket/proxyWorker'
+
+
 
 const logger = log4js.getLogger('index');
 
-// logger.info('info');
-// logger.error('error');
-// logger.debug('debug!');
-// logger.trace('trace');
-import { DouyuLogin } from './douyu/login'
-import Barrage from './websocket/BarrageFetcher'
 
 
-let douyu = new DouyuLogin();
 (
     async () => {
         // logger.info(await douyu.login());
         // logger.debug(await douyu.whoami());
-        let b = new Barrage('wss://danmuproxy.douyu.com:8506/', 110);
-        await b.connect()
-        await b.onopen()
-        b.onmessage((obj) => {
+        let cookies = await douyu.login();
+        logger.info(" login status : ", douyu.alreadyLogined)
+        let proxyWSS = await douyu.fetchProxy(9999)
+        let server: any = proxyWSS[Math.floor(Math.random() * proxyWSS.length)]
+        let worker = new ProxyWorker("wss://" + server.domain + ":" + server.port, 9999, cookies)
+
+        await worker.connect()
+        await worker.onopen((obj) => {
+            logger.warn(obj)
+        })
+
+        let barrage = new Barrage('wss://danmuproxy.douyu.com:8506/', 9999);
+        await barrage.connect()
+        await barrage.onopen((obj) => {
             if (obj.type == 'chatmsg') {
                 logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
             }
         });
 
-
-        let a = new Barrage('wss://danmuproxy.douyu.com:8506/', 52876);
-        await a.connect()
-        await a.onopen()
-        a.onmessage((obj) => {
-            if (obj.type == 'chatmsg') {
-                logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
-            }
+        let input = process.openStdin()
+        input.addListener("data", function (d) {
+            // note:  d is an object, and when converted to a string it will
+            // end with a linefeed.  so we (rather crudely) account for that  
+            // with toString() and then substring() 
+            logger.error("you entered: [" + d.toString().trim() + "]");
+            worker.sendBarrage(d.toString().trim())
         });
+
+        // let a = new Barrage('wss://danmuproxy.douyu.com:8506/', 9999);
+        // await a.connect()
+        // await a.onopen((obj) => {
+        //     if (obj.type == 'chatmsg') {
+        //         logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
+        //     }
+        // });
+
     }
 )()

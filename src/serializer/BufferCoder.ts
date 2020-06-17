@@ -2,17 +2,18 @@ import { log4js } from '../global';
 import stt from './STT';
 import {TextDecoder,TextEncoder} from 'util'
 
+const  logger = log4js.getLogger('BufferCoder');
 export default class BufferCoder {
-  private logger = log4js.getLogger('BufferCoder');
+
   private encoder = new TextEncoder();
   private decoder = new TextDecoder();
   private buffer = new ArrayBuffer(0);
   private readLength = 0;
 
   public encode = (str: string) => {
-    this.logger.debug('encode : ' + str);
+    logger.debug('encode : ' + str);
     if (str === '') {
-      this.logger.error(' unable to encode empty str');
+      logger.error(' unable to encode empty str');
       return;
     }
     let buffer = new ArrayBuffer(0);

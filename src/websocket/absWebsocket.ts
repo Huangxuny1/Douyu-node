@@ -7,19 +7,18 @@ import { log4js } from "../global"
 //     ws: WebSocket;
 //     heartbeat: any;
 // }
-
+const logger = log4js.getLogger('AbsDouyuWebsocket');
 export default abstract class AbsDouyuWebsocket {
-    private logger = log4js.getLogger('AbsDouyuWebsocket');
     private url: string;
     private dyWebsocket!: WebSocket;
     private bufferCoder = new BufferCoder();
 
-    public constructor(url: string) {
+    public constructor(url: string = '') {
         this.url = url;
     }
 
     public connect = async (): Promise<void> => {
-        this.logger.info(" connect to url ", this.url)
+        logger.info(" connect to url ", this.url)
         this.dyWebsocket = new WebSocket(this.url);
     }
 
@@ -36,25 +35,28 @@ export default abstract class AbsDouyuWebsocket {
     public heartbeat = (content: string | object, period: number, describe?: any): NodeJS.Timeout => {
         this.send(content);
         return setInterval(() => {
-            this.logger.info(" send hearbeat ...", content, describe)
+            logger.info(" send hearbeat ...", content, describe)
             this.send(content);
         }, period)
     }
 
-    public onmessage = async (callback: (obj: any) => void = (obj) => console.log(obj)): Promise<void> => {
+    protected onmessage = async (callback: (obj: any) => void = (obj) => console.log(obj)): Promise<void> => {
         this.dyWebsocket.onmessage = async (ev: WebSocket.MessageEvent) => {
-            //this.logger.debug(" onmessage : ", ev)
+            //logger.debug(" onmessage : ", ev)
             const buf = ev.data as Buffer;
             this.bufferCoder.decode(ev.data as Buffer, callback);
         };
     }
 
-    public onopen = async (): Promise<void> => {
+    public onopen = async (msgHandler: (obj: any) => void): Promise<void> => {
         this.dyWebsocket.onopen = async (event: WebSocket.OpenEvent) => {
-            await this.login()
+            await this.login(msgHandler)
         }
     }
 
-    abstract async login(): Promise<void>;
+    abstract async login(msgHandler: (obj: any) => void): Promise<void>;
 
+    public set setUrl(url: string) {
+        this.url = url;
+    }
 }

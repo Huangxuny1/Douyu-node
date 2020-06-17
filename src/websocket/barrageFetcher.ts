@@ -8,7 +8,7 @@ export default class Barrage extends absWebsocket {
         this.roomid = roomid;
     }
 
-    async login(): Promise<void> {
+    async login(msgHandler: (obj: any) => void): Promise<void> {
         await this.send({
             type: 'loginreq',
             room_id: this.roomid,
@@ -21,6 +21,7 @@ export default class Barrage extends absWebsocket {
         })
         await this.send({ type: 'joingroup', rid: this.roomid, gid: '-9999' })
         this.heartbeat('type@=mrkl/', 45000, "roomid is " + this.roomid)
+        this.onmessage(msgHandler);
     }
 
 
