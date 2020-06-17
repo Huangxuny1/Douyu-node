@@ -1,5 +1,6 @@
 import * as log4js from 'log4js';
 import * as superagent from 'superagent';
+import { DouyuLogin } from './douyu/login'
 
 log4js.configure({
   appenders: {
@@ -12,4 +13,6 @@ log4js.configure({
 
 const requests = superagent.agent();
 
-export { log4js, requests };
+const douyu = new DouyuLogin()
+
+export { log4js, requests, douyu };

@@ -1,5 +1,5 @@
 export default class STT {
-    public static encode = (e: any, t?: any): any => {
+    public static encode = (e: any, t?: any): string => {
         if ('string' === typeof e) return e;
         var r = Object.prototype.toString.call(e),
             n = '[object Array]' === r,
@@ -65,7 +65,7 @@ export default class STT {
         );
     };
 
-    public static decode = (str: any) => {
+    public static decode = (str: any): object => {
         let a = STT.inner_decode(str);
         for (let b in a) {
             if (b !== 'undefined' && b !== 'txt' && (a[b] as string).match('@')) {

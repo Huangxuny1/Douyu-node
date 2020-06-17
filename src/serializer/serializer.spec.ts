@@ -51,3 +51,9 @@ test("bufferCoder", () => {
         });
     }
 });
+
+
+test("test",()=>{
+    let o = stt.decode('type@=joingroup/rid@=74970/gid@=-9999/')
+    console.log(o)
+})

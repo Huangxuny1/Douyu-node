@@ -12,6 +12,8 @@ const headerUserAgent =
 
 const logger = log4js.getLogger("Login")
 class DouyuLogin {
+    private logined: boolean = false;
+
     public login = async (): Promise<setCookie.Cookie[]> => {
         let cookies: string[] = [];
         const fileName = 'cookie.txt'
@@ -28,6 +30,7 @@ class DouyuLogin {
 
             fs.writeFile(fileName, cookies.join('\n'), fs => { });
         }
+        this.logined = true
         return setCookie.parse(cookies)
     }
 
@@ -39,6 +42,20 @@ class DouyuLogin {
             .catch(err => {
                 logger.error(err)
             });
+    }
+
+    public fetchProxy = async (roomid: string | number): Promise<any> => {
+        return requests.post("https://www.douyu.com/lapi/live/gateway/web/" + roomid + "?isH5=1")
+            .set('User-Agent', headerUserAgent)
+            .set('accept', 'application/json, text/plain, */*')
+            .set('x-requested-with', 'XMLHttpRequest')
+            .set('sec-fetch-site', 'same-origin')
+            .set('referer', 'https://www.douyu.com/' + roomid)
+            .then(res => {
+                return JSON.parse(res.text).data.wss
+            }).catch(err => {
+                console.log(err)
+            })
     }
 
     private requestLogin = async (): Promise<object> => {
@@ -102,6 +119,11 @@ class DouyuLogin {
                 logger.error(err);
             });
     }
+
+    public get alreadyLogined(): boolean {
+        return this.logined;
+    }
+
 }
 
 export { DouyuLogin };
