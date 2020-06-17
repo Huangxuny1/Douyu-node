@@ -20,8 +20,12 @@ export default class Barrage extends absWebsocket {
             ct: '0'
         })
         await this.send({ type: 'joingroup', rid: this.roomid, gid: '-9999' })
-        this.heartbeat('type@=mrkl/', 45000, "roomid is " + this.roomid)
+        this.heartbeat(45000, "roomid is " + this.roomid)
         this.onmessage(msgHandler);
+    }
+
+    public heartbeatContent = (): string | object => {
+        return 'type@=mrkl/';
     }
 
 

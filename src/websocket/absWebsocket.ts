@@ -32,9 +32,10 @@ export default abstract class AbsDouyuWebsocket {
         return this.dyWebsocket.send(this.bufferCoder.encode(msg))
     }
 
-    public heartbeat = (content: string | object, period: number, describe?: any): NodeJS.Timeout => {
-        this.send(content);
+    public heartbeat = async (period: number, describe?: any): Promise<NodeJS.Timeout> => {
+        this.send(this.heartbeatContent());
         return setInterval(() => {
+            let content = this.heartbeatContent()
             logger.info(" send hearbeat ...", content, describe)
             this.send(content);
         }, period)
@@ -54,7 +55,9 @@ export default abstract class AbsDouyuWebsocket {
         }
     }
 
-    abstract async login(msgHandler: (obj: any) => void): Promise<void>;
+    protected abstract async login(msgHandler: (obj: any) => void): Promise<void>;
+
+    protected abstract heartbeatContent(): string | object;
 
     public set setUrl(url: string) {
         this.url = url;

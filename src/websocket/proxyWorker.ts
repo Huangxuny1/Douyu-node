@@ -27,7 +27,7 @@ export default class ProxyWorker extends absWebsocket {
                 case 'loginres':
                     this.send(util.format('type@=h5ckreq/rid@=%s/ti@=220120191120/', this.roomid));
                     this.dmva = obj.dmva;
-                    this.heartbeat('', 45000, ' worker heart ... ' + this.roomid)
+                    this.heartbeat(45000, ' worker heart ... ' + this.roomid)
                     break;
                 case 'keeplive':
                     this.kd_pre = obj.kd as string
@@ -42,12 +42,15 @@ export default class ProxyWorker extends absWebsocket {
         })
     }
 
-    public heartbeat = (content: string | object, period: number, describe?: any): NodeJS.Timeout => {
-        this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), ""));
-        return setInterval(() => {
-            logger.info(" send hearbeat ...", content, describe)
-            this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.get_kd(this.kd_pre!)));
-        }, period)
+    // public heartbeat = (content: string | object, period: number, describe?: any): NodeJS.Timeout => {
+    //     this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), ""));
+    //     return setInterval(() => {
+    //         logger.info(" send hearbeat ...", content, describe)
+    //         this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.get_kd(this.kd_pre!)));
+    //     }, period)
+    // }
+    public heartbeatContent = (): string | object => {
+        return util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.kd_pre === undefined ? '' : this.get_kd(this.kd_pre!));
     }
 
     private loginReq = () => {
