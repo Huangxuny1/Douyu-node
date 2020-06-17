@@ -1,7 +1,9 @@
 import absWebsocket from './absWebsocket'
 
 export default class Barrage extends absWebsocket {
+
     private roomid!: string | number;
+    private heartbeatInterval!: NodeJS.Timeout;
 
     constructor(url: string, roomid: string | number) {
         super(url)
@@ -20,12 +22,18 @@ export default class Barrage extends absWebsocket {
             ct: '0'
         })
         await this.send({ type: 'joingroup', rid: this.roomid, gid: '-9999' })
-        this.heartbeat(45000, "roomid is " + this.roomid)
+        this.heartbeat(45000, "roomid is " + this.roomid).then(t => this.heartbeatInterval = t)
         this.onmessage(msgHandler);
     }
 
-    public heartbeatContent = (): string | object => {
+    protected heartbeatContent = (): string | object => {
         return 'type@=mrkl/';
+    }
+
+    protected closeHandler = async (): Promise<void> => {
+        if (this.heartbeatInterval !== undefined) {
+            clearInterval(this.heartbeatInterval);
+        }
     }
 
 

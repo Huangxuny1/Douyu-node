@@ -10,7 +10,7 @@ const logger = log4js.getLogger('index');
 (
     async () => {
         // logger.info(await douyu.login());
-        let client = new DouyuClient(73966)
+        let client = new DouyuClient(9999)
         await client.start()
 
         logger.debug(await douyu.whoami());

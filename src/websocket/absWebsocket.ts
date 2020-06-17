@@ -53,11 +53,40 @@ export default abstract class AbsDouyuWebsocket {
         this.dyWebsocket.onopen = async (event: WebSocket.OpenEvent) => {
             await this.login(msgHandler)
         }
+
+        this.onclose();
+        this.onerror();
+    }
+
+    public onerror = async (): Promise<void> => {
+        this.dyWebsocket.onerror = async (event: WebSocket.ErrorEvent) => {
+            logger.error(" on error ", event.message)
+        }
+    }
+
+    public onclose = async (): Promise<void> => {
+        this.dyWebsocket.onclose = async (event: WebSocket.CloseEvent) => {
+            this.closeHandler();
+            logger.warn(" connection closed : reason : %s  ,code : %s , target : %s ", event.reason, event.code)
+            // 自动重连  不优雅...
+            // this.connect();
+            // this.onopen((obj) => {
+            //     logger.error(obj)
+            // })
+        }
+
+    }
+
+    public closeConnection = async (): Promise<void> => {
+        console.log(" close ")
+        this.dyWebsocket.close();
     }
 
     protected abstract async login(msgHandler: (obj: any) => void): Promise<void>;
 
     protected abstract heartbeatContent(): string | object;
+
+    protected abstract async closeHandler(): Promise<void>;
 
     public set setUrl(url: string) {
         this.url = url;
