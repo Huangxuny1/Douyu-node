@@ -10,17 +10,21 @@ const logger = log4js.getLogger('index');
 (
     async () => {
         // logger.info(await douyu.login());
-        let client = new DouyuClient(9999)
+        let client = new DouyuClient(73965)
         await client.start()
 
         logger.debug(await douyu.whoami());
 
         let worker = client.getWorker;
 
-        let input = process.openStdin()
-        input.addListener("data", function (d) {
+        process.openStdin().addListener("data", function (d) {
+
             logger.error("you entered: [" + d.toString().trim() + "]");
-            worker.sendBarrage(d.toString().trim())
+            if (d.toString().trim() == "s") {
+                client.shutdown()
+            } else {
+                worker.sendBarrage(d.toString().trim())
+            }
 
         });
     }

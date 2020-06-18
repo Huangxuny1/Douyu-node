@@ -4,10 +4,11 @@ import { DouyuLogin } from './douyu/login'
 
 log4js.configure({
   appenders: {
-    consoleout: { type: 'console' }
+    consoleout: { type: 'console' },
+    fileout: { type: 'file', filename: 'app.log' },
   },
   categories: {
-    default: { appenders: ['consoleout'], level: 'debug' }
+    default: { appenders: ['consoleout','fileout'], level: 'debug' },
   }
 });
 

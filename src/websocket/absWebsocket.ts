@@ -23,13 +23,15 @@ export default abstract class AbsDouyuWebsocket {
     }
 
     public send = async (content: string | object): Promise<void> => {
-        let msg: string;
-        if (typeof content == 'object') {
-            msg = STT.encode(content)
-        } else {
-            msg = content;
+        if (this.dyWebsocket.readyState === this.dyWebsocket.OPEN) {
+            let msg: string;
+            if (typeof content == 'object') {
+                msg = STT.encode(content)
+            } else {
+                msg = content;
+            }
+            return this.dyWebsocket.send(this.bufferCoder.encode(msg))
         }
-        return this.dyWebsocket.send(this.bufferCoder.encode(msg))
     }
 
     public heartbeat = async (period: number, describe?: any): Promise<NodeJS.Timeout> => {
@@ -82,6 +84,11 @@ export default abstract class AbsDouyuWebsocket {
         this.dyWebsocket.close();
     }
 
+    public shutdown = async (): Promise<void> => {
+        console.log(" shutdownint ... " + this.url)
+        this.dyWebsocket.close();
+    }
+
     protected abstract async login(msgHandler: (obj: any) => void): Promise<void>;
 
     protected abstract heartbeatContent(): string | object;
@@ -91,4 +98,5 @@ export default abstract class AbsDouyuWebsocket {
     public set setUrl(url: string) {
         this.url = url;
     }
+
 }

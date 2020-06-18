@@ -34,6 +34,12 @@ export default class DouyuClient {
         return this
     }
 
+
+    public shutdown = async (): Promise<void> => {
+        this.barrage.shutdown();
+        this.worker.shutdown();
+    }
+
     public get getWorker(): ProxyWorker {
         return this.worker;
     }
