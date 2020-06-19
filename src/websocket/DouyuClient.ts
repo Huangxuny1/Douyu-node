@@ -1,7 +1,7 @@
 import { log4js, douyu } from '../global'
 import ProxyWorker from './proxyWorker'
 import Barrage from './barrageFetcher'
-import Kafka from 'node-rdkafka'
+
 
 
 const logger = log4js.getLogger("DouyuClient")
@@ -10,25 +10,18 @@ export default class DouyuClient {
     private worker!: ProxyWorker;
     private barrage!: Barrage;
 
+    private dmMsgCallback: (obj: any) => void = (obj) => {
+        if (obj.type == 'chatmsg') {
+            logger.error('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
+            //producer.produce("topic", null, Buffer.from(JSON.stringify(obj)));
+        }
+    }
+
     public constructor(roomid: string | number) {
         this.roomid = roomid;
     }
 
     public start = async (): Promise<DouyuClient> => {
-
-        let producer = new Kafka.Producer({
-            'metadata.broker.list': '192.168.1.83:9092'
-        });
-        producer.connect();
-        producer.on('ready', () => {
-            logger.info("  kafka ready ... ");
-        })
-        producer.on('event.error', function (err) {
-            console.error('Error from producer');
-            console.error(err);
-        })
-        producer.setPollInterval(100);
-
 
         let cookies = await douyu.login();
         logger.info(" login status : ", douyu.alreadyLogined)
@@ -44,12 +37,7 @@ export default class DouyuClient {
 
         this.barrage = new Barrage('wss://danmuproxy.douyu.com:8506/', this.roomid);
         this.barrage.connect()
-        this.barrage.onopen((obj) => {
-            if (obj.type == 'chatmsg') {
-                logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
-                producer.produce("topic", null, Buffer.from(JSON.stringify(obj)));
-            }
-        });
+        this.barrage.onopen(this.dmMsgCallback);
         return this
     }
 
@@ -65,5 +53,9 @@ export default class DouyuClient {
 
     public get getBarrageFetcher(): Barrage {
         return this.barrage;
+    }
+
+    public set msgCallback(callback: (obj: any) => void) {
+        this.dmMsgCallback = callback;
     }
 }

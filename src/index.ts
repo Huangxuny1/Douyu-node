@@ -1,5 +1,6 @@
 import { log4js, douyu } from './global';
 import DouyuClient from './websocket/DouyuClient'
+import { producer } from './kafka/kafka'
 
 import Server from './server/server'
 
@@ -10,13 +11,20 @@ const logger = log4js.getLogger('index');
 (
     async () => {
 
-        let client = new DouyuClient(74960)
+        let client = new DouyuClient(110)
+        client.msgCallback = (obj: any) => {
+            //if (obj.type == 'chatmsg') {
+            //logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
+            logger.info(obj)
+            producer.produce("topic", null, Buffer.from(JSON.stringify(obj)));
+            //}
+        }
         await client.start()
 
         logger.debug(await douyu.whoami());
 
         let worker = client.getWorker;
-        
+
 
         process.openStdin().addListener("data", function (d) {
 
