@@ -11,8 +11,16 @@ const logger = log4js.getLogger('index');
 (
     async () => {
 
-        let client = new DouyuClient(564867)
-        client.start()
+        let client = new DouyuClient(110);
+        let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
+        client.setBarrageMsgCallback((obj) => {
+            if (obj.type == 'chatmsg') {
+                logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
+                persistence.save(obj);
+            }
+        })
+        
+        await client.start()
 
         logger.debug(await douyu.whoami());
 

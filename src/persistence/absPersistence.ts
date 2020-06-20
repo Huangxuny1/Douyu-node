@@ -24,8 +24,8 @@ class PersistenceFactory {
 }
 
 interface Persistence {
-
-    save(msg: string): Promise<void>;
+    //todo 未来可能会传一个object, 因为 不同持久化方案需要的参数不同
+    save(msg: string|object): Promise<void>;
 
 }
 

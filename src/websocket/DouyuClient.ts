@@ -33,7 +33,10 @@ export default class DouyuClient {
         // 随机选取一个
         let server: any = proxyWSS[Math.floor(Math.random() * proxyWSS.length)]
         this.worker = new ProxyWorker("wss://" + server.domain + ":" + server.port, this.roomid, cookies)
-
+        if (this.cacheProxyCallback) {
+            console.log(" set cacheProxyCallback")
+            this.worker.callback = this.cacheProxyCallback;
+        }
         this.worker.start();
 
         // 等待 wsproxy.douyu.com 返回 wss://danmuproxy.douyu.com  url 和端口
@@ -42,7 +45,10 @@ export default class DouyuClient {
         // 随机选取一个
         let dmserver: any = danmuproxies[Math.floor(Math.random() * danmuproxies.length)];
         this.barrage = new Barrage('wss://' + dmserver.ip + ':' + dmserver.port, this.roomid);
-        
+        if (this.cacheBarrageMsgCallback) {
+            console.log(" set cacheBarrageMsgCallback")
+            this.barrage.callback = this.cacheBarrageMsgCallback;
+        }
         this.barrage.start();
 
         return this
@@ -62,11 +68,23 @@ export default class DouyuClient {
         return this.barrage;
     }
 
-    public setBarrageMsgCallback = (callback: (obj: any) => void) => {
-        this.barrage.callback = callback;
-    }
+    private cacheBarrageMsgCallback!: (obj: any) => void;
 
+    public setBarrageMsgCallback = (callback: (obj: any) => void) => {
+        if (this.barrage === undefined) {
+            this.cacheBarrageMsgCallback = callback;
+        } else {
+            this.barrage.callback = callback;
+        }
+    }
+    private cacheProxyCallback!: (obj: any) => void;
     public setProxyCallback = (callback: (obj: any) => void) => {
-        this.worker.callback = callback;
+        if (this.worker === undefined) {
+            console.log(" cache setProxyCallback")
+            this.cacheProxyCallback = callback;
+        } else {
+            this.worker.callback = callback;
+        }
+
     }
 }
