@@ -10,7 +10,7 @@ export default class Barrage extends absWebsocket {
         this.roomid = roomid;
     }
 
-    async login(msgHandler: (obj: any) => void): Promise<void> {
+    protected async login(/*msgHandler: (obj: any) => void*/): Promise<void> {
         await this.send({
             type: 'loginreq',
             room_id: this.roomid,
@@ -21,9 +21,15 @@ export default class Barrage extends absWebsocket {
             aver: '218101901',
             ct: '0'
         })
-        await this.send({ type: 'joingroup', rid: this.roomid, gid: '-9999' })
+        await this.send({
+            type: 'joingroup',
+            rid: this.roomid,
+            gid: '-9999'
+        })
         this.heartbeat(45000, "roomid is " + this.roomid).then(t => this.heartbeatInterval = t)
-        this.onmessage(msgHandler);
+        this.onmessage(obj => {
+            this.getMsgHandler(obj);
+        });
     }
 
     protected heartbeatContent = (): string | object => {
@@ -35,7 +41,6 @@ export default class Barrage extends absWebsocket {
             clearInterval(this.heartbeatInterval);
         }
     }
-
 
 }
 

@@ -21,7 +21,7 @@ class DouyuLogin {
      * 测试如果cookie 有效则直接使用本地cookie . 
      * 无效则需要扫码登陆
      */
-    public login = async (): Promise<any> => {
+    public login = async (): Promise<DouyuCookie> => {
         let cookies: string[] = [];
         const fileName = 'cookie.txt'
 
@@ -41,7 +41,7 @@ class DouyuLogin {
             fs.writeFile(fileName, cookies.join('\n'), fs => { });
         }
         this.logined = true
-        let obj: any = {};
+        let obj: DouyuCookie = {};
         setCookie.parse(cookies).map(it => {
             obj[it.name] = it.value
         })
@@ -153,4 +153,8 @@ class DouyuLogin {
 
 }
 
-export { DouyuLogin };
+interface DouyuCookie {
+    [key: string]: string
+}
+
+export { DouyuLogin, DouyuCookie };

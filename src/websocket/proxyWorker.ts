@@ -1,10 +1,9 @@
 import absWebsocket from './absWebsocket'
-import { douyu } from '../global'
-import * as setCookie from 'set-cookie-parser';
 import md5 from 'md5'
 const cryptoSync = require("../jslib/cryptoSync")
 import * as util from 'util'
 import { log4js } from '../global'
+import { DouyuCookie } from '../douyu/login';
 
 const logger = log4js.getLogger("proxy worker ")
 export default class ProxyWorker extends absWebsocket {
@@ -13,21 +12,39 @@ export default class ProxyWorker extends absWebsocket {
     private kd_pre?: string;
     private dmva?: string;
     private heartbeatInterval!: NodeJS.Timeout;
+    private msgrepeaterproxylist!: Array<any>;
 
-    constructor(url: string, roomid: string | number, cookies: any) {
+    constructor(url: string, roomid: string | number, cookies: DouyuCookie) {
         super(url)
         this.roomid = roomid;
         this.cookies = cookies;
     }
 
-    public async login(msgHandler: (obj: any) => void): Promise<void> {
+    public sendBarrage = (content: string) => {
+        let time = this.getTime();
+        let dmvv = cryptoSync('_sub_dms', [this.roomid, time, this.dmva]);
+        this.send(util.format('content@=%s/col@=0/type@=chatmessage/dy@=%s/sender@=%s/ifs@=0/nc@=0/dat@=0/rev@=0/admzq@=0/cst@=%s/dmt@=7/dmvv@=%s/',
+            content, '11111111111111111111111111111111', this.cookies['acf_username'], time, dmvv));
+    }
+
+    public getMsgrepeaterproxylist = async (): Promise<Array<any>> => {
+
+        while (this.msgrepeaterproxylist === undefined) {
+            await new Promise(resolve => {
+                setTimeout(resolve, 500)
+            })
+        }
+        return this.msgrepeaterproxylist;
+    }
+
+    protected async login(/*msgHandler: (obj: any) => void*/): Promise<void> {
         await this.send(this.loginReq())
         this.onmessage(obj => {
             switch (obj.type as string) {
                 case 'loginres':
                     this.send(util.format('type@=h5ckreq/rid@=%s/ti@=220120191120/', this.roomid));
                     this.dmva = obj.dmva;
-                    this.heartbeat(45000, ' worker heart ... ' + this.roomid).then(t => this.heartbeatInterval = t)
+                    this.heartbeat(45000, ' roomid: ' + this.roomid).then(t => this.heartbeatInterval = t)
                     break;
                 case 'keeplive':
                     this.kd_pre = obj.kd as string
@@ -37,14 +54,17 @@ export default class ProxyWorker extends absWebsocket {
                     logger.error(obj);
                     this.closeConnection();
                     break;
+                case 'msgrepeaterproxylist':
+                    this.msgrepeaterproxylist = obj.list;
+                    break;
                 default:
-                    msgHandler(obj);
+                    this.getMsgHandler(obj);
             }
 
         })
     }
 
-    public heartbeatContent = (): string | object => {
+    protected heartbeatContent = (): string | object => {
         return util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.kd_pre === undefined ? '' : this.get_kd(this.kd_pre!));
     }
 
@@ -121,13 +141,6 @@ export default class ProxyWorker extends absWebsocket {
             return n;
         }
         return null;
-    }
-
-    public sendBarrage = (content: string) => {
-        let time = this.getTime();
-        let dmvv = cryptoSync('_sub_dms', [this.roomid, time, this.dmva]);
-        this.send(util.format('content@=%s/col@=0/type@=chatmessage/dy@=%s/sender@=%s/ifs@=0/nc@=0/dat@=0/rev@=0/admzq@=0/cst@=%s/dmt@=7/dmvv@=%s/',
-            content, '11111111111111111111111111111111', this.cookies['acf_username'], time, dmvv));
     }
 
     private hex = (v: Array<number>): string => {

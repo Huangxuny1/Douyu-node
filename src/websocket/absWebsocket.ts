@@ -3,31 +3,35 @@ import BufferCoder from "../serializer/BufferCoder"
 import STT from "../serializer/STT"
 import { log4js } from "../global"
 
-// interface IDouyuWebsocket {
-//     ws: WebSocket;
-//     heartbeat: any;
-// }
+
 const logger = log4js.getLogger('AbsDouyuWebsocket');
 export default abstract class AbsDouyuWebsocket {
     private url: string;
     private dyWebsocket!: WebSocket;
     private bufferCoder = new BufferCoder();
+    private msgHandler: (obj: any) => void = (obj: any) => { console.log(obj) };
 
     public constructor(url: string = '') {
         this.url = url;
     }
 
-    /**
-     *  dev ing
-     */
+
     public start = async (): Promise<void> => {
         await this.connect();
-
         this.onerror();
         this.onclose();
-        this.onmessage()
+        this.onopen();
     }
 
+    /**
+    * 
+    * @param msgHandler 
+    */
+    protected onopen = async (/*msgHandler: (obj: any) => void*/): Promise<void> => {
+        this.dyWebsocket.onopen = async (event: WebSocket.OpenEvent) => {
+            this.login(/*msgHandler*/)
+        }
+    }
 
     public send = async (content: string | object): Promise<void> => {
         if (this.dyWebsocket.readyState === this.dyWebsocket.OPEN) {
@@ -39,12 +43,13 @@ export default abstract class AbsDouyuWebsocket {
             }
             return this.dyWebsocket.send(this.bufferCoder.encode(msg))
         }
+        throw new Error(" websocket not ready ... ")
     }
 
     /**
      *   new 
      */
-    public connect = async (): Promise<void> => {
+    protected connect = async (): Promise<void> => {
         logger.info(" connect to url ", this.url)
         this.dyWebsocket = new WebSocket(this.url);
     }
@@ -54,15 +59,15 @@ export default abstract class AbsDouyuWebsocket {
      * @param period 心跳间隔
      * @param describe 心跳描述 ...
      */
-    public heartbeat = async (period: number, describe?: any): Promise<NodeJS.Timeout> => {
+    protected heartbeat = async (period: number, describe?: any): Promise<NodeJS.Timeout> => {
         // 立即发送一次心跳
         this.send(this.heartbeatContent());
         // 返回是为了之后 取消定时
         return setInterval(() => {
-            let content = this.heartbeatContent()
-            logger.info(" send hearbeat ...", content, describe)
+            let content = this.heartbeatContent();
+            logger.info(" send hearbeat ...", content, describe);
             this.send(content);
-        }, period)
+        }, period);
     }
 
     /**
@@ -72,27 +77,14 @@ export default abstract class AbsDouyuWebsocket {
      */
     protected onmessage = async (callback: (obj: any) => void = (obj) => console.log(obj)): Promise<void> => {
         this.dyWebsocket.onmessage = async (ev: WebSocket.MessageEvent) => {
-            //logger.debug(" onmessage : ", ev)
-            const buf = ev.data as Buffer;
             this.bufferCoder.decode(ev.data as Buffer, callback);
         };
     }
 
     /**
-     * 
-     * @param msgHandler 
-     */
-    public onopen = async (msgHandler: (obj: any) => void): Promise<void> => {
-        this.dyWebsocket.onopen = async (event: WebSocket.OpenEvent) => {
-            await this.login(msgHandler)
-        }
-    }
-
-
-    /**
      *  暂时没遇到 出发此事件
      */
-    public onerror = async (): Promise<void> => {
+    protected onerror = async (): Promise<void> => {
         this.dyWebsocket.onerror = async (event: WebSocket.ErrorEvent) => {
             logger.error(" on error ", event.message)
         }
@@ -101,10 +93,10 @@ export default abstract class AbsDouyuWebsocket {
     /**
      *  Notice : 当斗鱼 error code:51 的时候是不会出发 close 的... 
      */
-    public onclose = async (): Promise<void> => {
+    protected onclose = async (): Promise<void> => {
         this.dyWebsocket.onclose = async (event: WebSocket.CloseEvent) => {
             this.closeHandler();
-            logger.warn(" connection closed : reason : %s  ,code : %s , target : %s ", event.reason, event.code)
+            logger.warn(" connection closed : reason : %s  ,code : %s , target : %s ", event.reason, event.code, event);
             // 自动重连  不优雅...
             // this.connect();
             // this.onopen((obj) => {
@@ -115,17 +107,24 @@ export default abstract class AbsDouyuWebsocket {
     }
 
     /**
-     *  关闭连接 , 用处不大 考虑删掉?
+     *  关闭连接 , 用处不大 
      */
     public closeConnection = async (): Promise<void> => {
-        console.log(" close ")
+        logger.warn(" close ...")
         this.dyWebsocket.close();
     }
 
-    protected abstract async login(msgHandler: (obj: any) => void): Promise<void>;
+    protected abstract async login(): Promise<void>;
 
     protected abstract heartbeatContent(): string | object;
 
     protected abstract async closeHandler(): Promise<void>;
 
+    public set callback(msgHandler: (obj: any) => void) {
+        this.msgHandler = msgHandler;
+    }
+
+    public get getMsgHandler(): (obj: any) => void {
+        return this.msgHandler;
+    }
 }

@@ -10,6 +10,7 @@ export default class DouyuClient {
     private worker!: ProxyWorker;
     private barrage!: Barrage;
 
+
     private dmMsgCallback: (obj: any) => void = (obj) => {
         if (obj.type == 'chatmsg') {
             logger.error('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
@@ -26,18 +27,24 @@ export default class DouyuClient {
         let cookies = await douyu.login();
         logger.info(" login status : ", douyu.alreadyLogined)
 
+        // 从 http api中获取 wss://wsproxy.douyu.com  url 和 端口
         let proxyWSS = await douyu.fetchProxy(this.roomid)
+
+        // 随机选取一个
         let server: any = proxyWSS[Math.floor(Math.random() * proxyWSS.length)]
         this.worker = new ProxyWorker("wss://" + server.domain + ":" + server.port, this.roomid, cookies)
 
-        this.worker.connect()
-        this.worker.onopen((obj) => {
-            logger.warn(obj)
-        })
+        this.worker.start();
 
-        this.barrage = new Barrage('wss://danmuproxy.douyu.com:8506/', this.roomid);
-        this.barrage.connect()
-        this.barrage.onopen(this.dmMsgCallback);
+        // 等待 wsproxy.douyu.com 返回 wss://danmuproxy.douyu.com  url 和端口
+        let danmuproxies = await this.worker.getMsgrepeaterproxylist();
+
+        // 随机选取一个
+        let dmserver: any = danmuproxies[Math.floor(Math.random() * danmuproxies.length)];
+        this.barrage = new Barrage('wss://' + dmserver.ip + ':' + dmserver.port, this.roomid);
+        
+        this.barrage.start();
+
         return this
     }
 
@@ -55,7 +62,11 @@ export default class DouyuClient {
         return this.barrage;
     }
 
-    public set msgCallback(callback: (obj: any) => void) {
-        this.dmMsgCallback = callback;
+    public setBarrageMsgCallback = (callback: (obj: any) => void) => {
+        this.barrage.callback = callback;
+    }
+
+    public setProxyCallback = (callback: (obj: any) => void) => {
+        this.worker.callback = callback;
     }
 }
