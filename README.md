@@ -9,8 +9,8 @@
 
 Douyu 默认会开启两个 websocket 连接 
 
-一个是不需要验证的`danmuproxy.douyu.com` 会返回 弹幕消息 礼物 等
-一个是需要验证的 `wsproxy.douyu.com`  ,发送弹幕是从这个wss连接发送
+- 一个是不需要验证的`danmuproxy.douyu.com` 会返回 弹幕消息 礼物 等
+- 一个是需要验证的 `wsproxy.douyu.com`  ,发送弹幕是从这个wss连接发送
 
 ## Screenshot
 
@@ -38,14 +38,19 @@ yarn start  # 需要安装typescript 即tsc命令可用
 
 ```
 
+### 发送弹幕
+```javascript
+client.getWorker.sendBarrage(/* 弹幕消息 */)
+```
+
 ### 自定义消息处理
 
 ```javascript
-
+// 弹幕消息和礼物等消息处理  danmuproxy
 client.setBarrageMsgCallback(obj=>{
     ... // 你的逻辑
 });
-
+// wsproxy
 client.setProxyCallback(obj =>{
     ... // 你的逻辑
 });
@@ -53,7 +58,7 @@ client.setProxyCallback(obj =>{
 
 ### 消息持久化
 
-目前只完成了 kafka, 使用 [node-rdkafka](https://github.com/Blizzard/node-rdkafka)
+目前只实现了 kafka, 使用 [node-rdkafka](https://github.com/Blizzard/node-rdkafka) , 还处于玩具状态 . **很不完善**
 
 ```javascript
 let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
@@ -85,6 +90,6 @@ client.setBarrageMsgCallback(obj=>{
 
 ### 免责 
 
-本程序仅供内部学习和交流使用,请勿作为商业用户或者扰乱平台正常秩序用途.请在遵守法律的前提下使用本站程序，对用户在使用过程中造成任何损失，本人不负任何责任.
+本程序仅供内部学习和交流使用,请勿作为商业或者扰乱平台正常秩序用途.请在遵守法律的前提下使用本站程序，对用户在使用过程中造成任何损失，本人不负任何责任.
 
 
