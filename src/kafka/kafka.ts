@@ -3,7 +3,7 @@ import { log4js } from '../global'
 const logger = log4js.getLogger("kafka");
 
 let producer = new Kafka.Producer({
-    'metadata.broker.list': '172.18.64.38:9092'
+    'metadata.broker.list': '192.168.1.83:9092'
 });
 producer.connect();
 producer.on('ready', () => {

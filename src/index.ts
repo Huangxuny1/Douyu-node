@@ -11,12 +11,13 @@ const logger = log4js.getLogger('index');
 (
     async () => {
 
-        let client = new DouyuClient(110)
+        let client = new DouyuClient(212689)
         client.msgCallback = (obj: any) => {
             //if (obj.type == 'chatmsg') {
             //logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
             logger.info(obj)
-            producer.produce("topic", null, Buffer.from(JSON.stringify(obj)));
+
+            //producer.isConnected() ? producer.produce("topic", null, Buffer.from(JSON.stringify(obj))) : logger.error(" producer not connected ... ")
             //}
         }
         await client.start()

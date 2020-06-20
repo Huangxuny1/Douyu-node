@@ -9,12 +9,12 @@ import { log4js } from '../global'
 const logger = log4js.getLogger("proxy worker ")
 export default class ProxyWorker extends absWebsocket {
     private roomid!: string | number;
-    private cookies!: setCookie.Cookie[];
+    private cookies!: any;
     private kd_pre?: string;
     private dmva?: string;
     private heartbeatInterval!: NodeJS.Timeout;
 
-    constructor(url: string, roomid: string | number, cookies: setCookie.Cookie[]) {
+    constructor(url: string, roomid: string | number, cookies: any) {
         super(url)
         this.roomid = roomid;
         this.cookies = cookies;
@@ -23,7 +23,6 @@ export default class ProxyWorker extends absWebsocket {
     public async login(msgHandler: (obj: any) => void): Promise<void> {
         await this.send(this.loginReq())
         this.onmessage(obj => {
-
             switch (obj.type as string) {
                 case 'loginres':
                     this.send(util.format('type@=h5ckreq/rid@=%s/ti@=220120191120/', this.roomid));
@@ -41,19 +40,10 @@ export default class ProxyWorker extends absWebsocket {
                 default:
                     msgHandler(obj);
             }
-            // if (obj.type === 'loginres') {
 
-            // }
         })
     }
 
-    // public heartbeat = (content: string | object, period: number, describe?: any): NodeJS.Timeout => {
-    //     this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), ""));
-    //     return setInterval(() => {
-    //         logger.info(" send hearbeat ...", content, describe)
-    //         this.send(util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.get_kd(this.kd_pre!)));
-    //     }, period)
-    // }
     public heartbeatContent = (): string | object => {
         return util.format('type@=keeplive/vbw@=0/cdn@=/tick@=%s/kd@=%s/', this.getTime(), this.kd_pre === undefined ? '' : this.get_kd(this.kd_pre!));
     }
@@ -65,17 +55,20 @@ export default class ProxyWorker extends absWebsocket {
     }
 
     private loginReq = () => {
+        // 当前时间戳
         let timestamp = this.getTime();
+        // device id   , 32位md5 
         let did = '11111111111111111111111111111111';
+        // vk 算法固定
         let vk = md5(timestamp + "r5*^5;}2#${XF[h+;'./.Q'1;,-]f'p[" + did);
         return util.format('type@=loginreq/roomid@=%s/dfl@=sn@AA=107@ASss@AA=1@Ssn@AA=108@ASss@AA=1@Ssn@AA=105@ASss@AA=1@Ssn@AA=110@ASss@AA=1/username@=%s/password@=/ltkid@=%s/biz@=%s/stk@=%s/devid@=%s/ct@=%s/pt@=2/cvr@=0/tvr@=7/apd@=/rt@=%s/vk@=%s/ver@=20190610/aver@=218101901/dmbt@=chrome/dmbv@=81',
             this.roomid,
-            this.cookies.filter(cookie => cookie.name === 'acf_username')[0].value,
-            this.cookies.filter(cookie => cookie.name === 'acf_ltkid')[0].value,
-            this.cookies.filter(cookie => cookie.name === 'acf_biz')[0].value,
-            this.cookies.filter(cookie => cookie.name === 'acf_stk')[0].value,
+            this.cookies['acf_username'],
+            this.cookies['acf_ltkid'],
+            this.cookies['acf_biz'],
+            this.cookies['acf_stk'],
             did,
-            this.cookies.filter(cookie => cookie.name === 'acf_ct')[0].value,
+            this.cookies['acf_ct'],
             timestamp,
             vk
         );
@@ -134,7 +127,7 @@ export default class ProxyWorker extends absWebsocket {
         let time = this.getTime();
         let dmvv = cryptoSync('_sub_dms', [this.roomid, time, this.dmva]);
         this.send(util.format('content@=%s/col@=0/type@=chatmessage/dy@=%s/sender@=%s/ifs@=0/nc@=0/dat@=0/rev@=0/admzq@=0/cst@=%s/dmt@=7/dmvv@=%s/',
-            content, '11111111111111111111111111111111', this.cookies?.filter(cookie => cookie.name === 'acf_username')[0].value, time, dmvv));
+            content, '11111111111111111111111111111111', this.cookies['acf_username'], time, dmvv));
     }
 
     private hex = (v: Array<number>): string => {

@@ -13,15 +13,25 @@ const headerUserAgent =
 const logger = log4js.getLogger("Login")
 class DouyuLogin {
     private logined: boolean = false;
-
-    public login = async (): Promise<setCookie.Cookie[]> => {
+    /**
+     * 斗鱼登陆  获取Cookie 用于 wss://wsproxy.douyu.com 的一些验证
+     * 
+     * 首次运行会 需要先扫码模拟登陆. 然后获取 cookies 存入 {projectRoot}/cookie.txt  中
+     * 之后运行则会先从 cookie.txt 中获取cookie . 
+     * 测试如果cookie 有效则直接使用本地cookie . 
+     * 无效则需要扫码登陆
+     */
+    public login = async (): Promise<any> => {
         let cookies: string[] = [];
         const fileName = 'cookie.txt'
 
         if (fs.existsSync(fileName)) {
             cookies = fs.readFileSync(fileName, 'utf-8').split('\n');
             requests.jar.setCookies(cookies);
-        } else {
+        }
+        let test = await requests.get('https://www.douyu.com/member').redirects(0).catch(err => { })
+
+        if (test === undefined) {
             cookies = await this.getCookie();
 
             if (fs.existsSync(fileName)) {
@@ -31,7 +41,11 @@ class DouyuLogin {
             fs.writeFile(fileName, cookies.join('\n'), fs => { });
         }
         this.logined = true
-        return setCookie.parse(cookies)
+        let obj: any = {};
+        setCookie.parse(cookies).map(it => {
+            obj[it.name] = it.value
+        })
+        return obj;
     }
 
     public whoami = async (): Promise<string | void> => {
@@ -44,6 +58,11 @@ class DouyuLogin {
             });
     }
 
+    /**
+     * 获取 wss wsproxy 我地址及端口好... 
+     * 也可以不需要每次获取 因为基本上 抓包获取一个地址+端口可以一直使用.
+     * @param roomid 房间号
+     */
     public fetchProxy = async (roomid: string | number): Promise<any> => {
         return requests.post("https://www.douyu.com/lapi/live/gateway/web/" + roomid + "?isH5=1")
             .set('User-Agent', headerUserAgent)
@@ -58,6 +77,9 @@ class DouyuLogin {
             })
     }
 
+    /**
+     * 获取generatoeCode 用于登陆 和check 二维码扫描情况 , 并生成二维码
+     */
     private requestLogin = async (): Promise<object> => {
         return requests
             .post(generatoeCodeUrl)
@@ -74,7 +96,9 @@ class DouyuLogin {
                 logger.error(err);
             });
     }
-
+    /**
+     * 根据 generatoeCode 轮询二维码扫描情况 ... 如果扫描成功则返回获取cookie的url
+     */
     private checkScan = async (): Promise<object> => {
         let checkUrl: any = await this.requestLogin();
         return new Promise((resolve, reject) => {
@@ -103,6 +127,9 @@ class DouyuLogin {
         })
     }
 
+    /**
+     * 获取cookie
+     */
     private getCookie = async (): Promise<string[]> => {
         let data: any = await this.checkScan();
 
