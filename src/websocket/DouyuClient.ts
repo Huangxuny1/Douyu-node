@@ -87,4 +87,12 @@ export default class DouyuClient {
         }
 
     }
+
+    public gift = async (): Promise<void> => {
+        douyu.gift(this.roomid);
+    }
+
+    public test = async (): Promise<void> => {
+        douyu.getBackpack(this.roomid);
+    }
 }

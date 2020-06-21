@@ -11,7 +11,7 @@ const logger = log4js.getLogger('index');
 (
     async () => {
 
-        let client = new DouyuClient(110);
+        let client = new DouyuClient(74960);
         let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
         client.setBarrageMsgCallback((obj) => {
             if (obj.type == 'chatmsg') {
@@ -19,7 +19,7 @@ const logger = log4js.getLogger('index');
                 persistence.save(obj);
             }
         })
-        
+
         await client.start()
 
         logger.debug(await douyu.whoami());
@@ -32,7 +32,11 @@ const logger = log4js.getLogger('index');
             logger.error("you entered: [" + d.toString().trim() + "]");
             if (d.toString().trim() == "s") {
                 client.shutdown()
-            } else {
+            } else if (d.toString().trim() == "g") {
+                client.gift();
+            } else if (d.toString().trim() == "t"){
+                client.test();
+            }else {
                 worker.sendBarrage(d.toString().trim())
             }
 

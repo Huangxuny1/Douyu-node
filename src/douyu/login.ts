@@ -151,6 +151,42 @@ class DouyuLogin {
         return this.logined;
     }
 
+
+    // developing  赠送荧光棒
+
+    public getBackpack = async (roomid: string | number): Promise<void> => {
+        return requests.get('https://www.douyu.com/japi/prop/backpack/web/v1?rid=' + roomid)
+            .set('authority', 'www.douyu.com')
+            .set('accept', 'application/json, text/plain, */*')
+            .set('referer', 'https://www.douyu.com/' + roomid)
+            .set('origin', 'https://www.douyu.com')
+            .set('sec-fetch-site', 'same-origin')
+            .set('sec-fetch-mode', 'cors')
+            .set('sec-fetch-dest', 'empty')
+            .then(res => {
+                logger.warn(res.status, res)
+            })
+            .catch(err => {
+                logger.error(err);
+            })
+
+    }
+
+    public gift = async (roomid: string | number): Promise<void> => {
+        return requests.post('https://www.douyu.com/japi/prop/donate/mainsite/v1')
+            .set('authority', 'www.douyu.com')
+            .set('accept', 'application/json, text/plain, */*')
+            .send('propId=268&propCount=1&roomId=' + roomid + '&bizExt=%7B%22yzxq%22%3A%7B%7D%7D')
+            .set('referer', 'https://www.douyu.com/' + roomid)
+            .set('origin', 'https://www.douyu.com')
+            .set('sec-fetch-site', 'same-origin')
+            .set('sec-fetch-mode', 'cors')
+            .set('sec-fetch-dest', 'empty')
+            .then(res => {
+                logger.info(res.status, res)
+            }).catch(err => logger.error(err))
+    }
+
 }
 
 interface DouyuCookie {
