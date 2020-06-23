@@ -28,7 +28,6 @@ class KafkaClient implements Persistence {
             if (size > 0) {
                 while (size--) {
                     this.save(this.waittingList[size]);
-                    this.waittingList.splice(size, 1);
                 }
             }
         })

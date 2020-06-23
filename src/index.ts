@@ -12,11 +12,11 @@ const logger = log4js.getLogger('index');
     async () => {
 
         let client = new DouyuClient(74960);
-        let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
+		//let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
         client.setBarrageMsgCallback((obj) => {
             if (obj.type == 'chatmsg') {
                 logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
-                persistence.save(obj);
+				// persistence.save(obj);
             }
         })
 
@@ -27,6 +27,7 @@ const logger = log4js.getLogger('index');
         let worker = client.getWorker;
         //let barrage = client.getBarrageFetcher;
 
+        // 临时输入方案. 未来会结合web server 通过 restAPI或者websocket替代
         process.openStdin().addListener("data", function (d) {
 
             logger.error("you entered: [" + d.toString().trim() + "]");

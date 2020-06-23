@@ -164,7 +164,7 @@ class DouyuLogin {
             .set('sec-fetch-mode', 'cors')
             .set('sec-fetch-dest', 'empty')
             .then(res => {
-                logger.warn(res.status, res)
+                logger.warn(res.status, res.text)
             })
             .catch(err => {
                 logger.error(err);
@@ -183,7 +183,7 @@ class DouyuLogin {
             .set('sec-fetch-mode', 'cors')
             .set('sec-fetch-dest', 'empty')
             .then(res => {
-                logger.info(res.status, res)
+                logger.warn(res.status, res.text)
             }).catch(err => logger.error(err))
     }
 
