@@ -108,3 +108,5 @@ cookie*.txt
 build/
 
 .DS_Store
+
+douyu-*.log.*

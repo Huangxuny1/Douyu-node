@@ -39,26 +39,26 @@ export default class ProxyWorker extends absWebsocket {
 
     protected async login(/*msgHandler: (obj: any) => void*/): Promise<void> {
         await this.send(this.loginReq())
-        this.onmessage(obj => {
-            switch (obj.type as string) {
+        this.onmessage(msg => {
+            switch (msg.type as string) {
                 case 'loginres':
                     this.send(util.format('type@=h5ckreq/rid@=%s/ti@=220120191120/', this.roomid));
-                    this.dmva = obj.dmva;
+                    this.dmva = msg.dmva;
                     this.heartbeat(45000, ' roomid: ' + this.roomid).then(t => this.heartbeatInterval = t)
                     break;
                 case 'keeplive':
-                    this.kd_pre = obj.kd as string
-                    logger.warn(" kd_pre = %s ", this.kd_pre);
+                    this.kd_pre = msg.kd
+                    logger.warn(msg)
                     break;
                 case 'error':
-                    logger.error(obj);
+                    logger.error(msg);
                     this.closeConnection();
                     break;
                 case 'msgrepeaterproxylist':
-                    this.msgrepeaterproxylist = obj.list;
+                    this.msgrepeaterproxylist = msg.list;
                     break;
                 default:
-                    this.getMsgHandler(obj);
+                    this.getMsgHandler(msg);
             }
 
         })
@@ -128,7 +128,7 @@ export default class ProxyWorker extends absWebsocket {
         return this.hex(v);
     }
 
-    private hex2bin = (e: string) => {
+    private hex2bin = (e: string) :number[]=> {
         if ("string" === typeof e && e.length % 8 === 0) {
             let r = []
             let n = []
@@ -140,7 +140,7 @@ export default class ProxyWorker extends absWebsocket {
                     s += 4;
             return n;
         }
-        return null;
+        return [];
     }
 
     private hex = (v: Array<number>): string => {

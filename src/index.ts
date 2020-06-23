@@ -4,7 +4,7 @@ import { PersistenceFactory, persistenceType } from './persistence/absPersistenc
 
 import Server from './server/server'
 
-const logger = log4js.getLogger('index');
+const logger = log4js.getLogger('console');
 
 
 // new Server().start();
@@ -12,11 +12,11 @@ const logger = log4js.getLogger('index');
     async () => {
 
         let client = new DouyuClient(74960);
-		//let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
+        //let persistence = new PersistenceFactory(persistenceType.KAFKA).getPersistence();
         client.setBarrageMsgCallback((obj) => {
             if (obj.type == 'chatmsg') {
                 logger.info('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
-				// persistence.save(obj);
+                // persistence.save(obj);
             }
         })
 
@@ -31,13 +31,15 @@ const logger = log4js.getLogger('index');
         process.openStdin().addListener("data", function (d) {
 
             logger.error("you entered: [" + d.toString().trim() + "]");
-            if (d.toString().trim() == "s") {
+            if (d.toString().trim() === "s") {
                 client.shutdown()
-            } else if (d.toString().trim() == "g") {
+            } else if (d.toString().trim() === "g") {
                 client.gift();
-            } else if (d.toString().trim() == "t"){
+            } else if (d.toString().trim() === "t") {
                 client.test();
-            }else {
+            } else if (d.toString().trim() === "w") {
+                douyu.whoami().then(res => logger.info(res));
+            } else {
                 worker.sendBarrage(d.toString().trim())
             }
 

@@ -51,7 +51,7 @@ export default class BufferCoder {
       const str = this.decoder.decode(this.buffer.slice(8, this.readLength - 1));
       this.buffer = this.buffer.slice(this.readLength);
       this.readLength = 0;
-      callback(stt.decode(str));
+      callback(stt.decode(str) as DouyuMessage);
     }
   };
 
