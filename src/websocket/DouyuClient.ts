@@ -14,7 +14,6 @@ export default class DouyuClient {
     private dmMsgCallback: (obj: any) => void = (obj) => {
         if (obj.type == 'chatmsg') {
             logger.error('[%s] - %s(lv:%s)[%s:%s]:\t%s', obj.rid, obj.nn, obj.level, obj.bnn, obj.bl, obj.txt);
-            //producer.produce("topic", null, Buffer.from(JSON.stringify(obj)));
         }
     }
 
@@ -46,7 +45,6 @@ export default class DouyuClient {
         let dmserver: any = danmuproxies[Math.floor(Math.random() * danmuproxies.length)];
         this.barrage = new Barrage('wss://' + dmserver.ip + ':' + dmserver.port, this.roomid);
         if (this.cacheBarrageMsgCallback) {
-            console.log(" set cacheBarrageMsgCallback")
             this.barrage.callback = this.cacheBarrageMsgCallback;
         }
         this.barrage.start();
@@ -80,11 +78,18 @@ export default class DouyuClient {
     private cacheProxyCallback!: (obj: any) => void;
     public setProxyCallback = (callback: (obj: any) => void) => {
         if (this.worker === undefined) {
-            console.log(" cache setProxyCallback")
             this.cacheProxyCallback = callback;
         } else {
             this.worker.callback = callback;
         }
 
+    }
+
+    public gift = async (): Promise<void> => {
+        douyu.gift(this.roomid);
+    }
+
+    public test = async (): Promise<void> => {
+        douyu.getBackpack(this.roomid);
     }
 }
