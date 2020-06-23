@@ -37,10 +37,11 @@ export default class ProxyWorker extends absWebsocket {
         return this.msgrepeaterproxylist;
     }
 
-    protected async login(/*msgHandler: (obj: any) => void*/): Promise<void> {
+    protected async login(): Promise<void> {
         await this.send(this.loginReq())
         this.onmessage(msg => {
-            switch (msg.type as string) {
+            logger.debug(msg);
+            switch (msg.type) {
                 case 'loginres':
                     this.send(util.format('type@=h5ckreq/rid@=%s/ti@=220120191120/', this.roomid));
                     this.dmva = msg.dmva;
@@ -48,10 +49,8 @@ export default class ProxyWorker extends absWebsocket {
                     break;
                 case 'keeplive':
                     this.kd_pre = msg.kd
-                    logger.warn(msg)
                     break;
                 case 'error':
-                    logger.error(msg);
                     this.closeConnection();
                     break;
                 case 'msgrepeaterproxylist':

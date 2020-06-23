@@ -1,5 +1,7 @@
 import absWebsocket from './absWebsocket'
+import { log4js } from '../global'
 
+const logger =  log4js.getLogger("Barrage")
 export default class Barrage extends absWebsocket {
 
     private roomid!: string | number;
@@ -27,8 +29,9 @@ export default class Barrage extends absWebsocket {
             gid: '-9999'
         })
         this.heartbeat(45000, "roomid is " + this.roomid).then(t => this.heartbeatInterval = t)
-        this.onmessage(obj => {
-            this.getMsgHandler(obj);
+        this.onmessage(msg => {
+            logger.debug(msg);
+            this.getMsgHandler(msg);
         });
     }
 
