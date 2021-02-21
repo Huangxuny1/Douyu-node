@@ -66,17 +66,17 @@ export default class DouyuClient {
         return this.barrage;
     }
 
-    private cacheBarrageMsgCallback!: (obj: any) => void;
+    private cacheBarrageMsgCallback!: (obj: DouyuMessage) => void;
 
-    public setBarrageMsgCallback = (callback: (obj: any) => void) => {
+    public setBarrageMsgCallback = (callback: (obj: DouyuMessage) => void) => {
         if (this.barrage === undefined) {
             this.cacheBarrageMsgCallback = callback;
         } else {
             this.barrage.callback = callback;
         }
     }
-    private cacheProxyCallback!: (obj: any) => void;
-    public setProxyCallback = (callback: (obj: any) => void) => {
+    private cacheProxyCallback!: (obj: DouyuMessage) => void;
+    public setProxyCallback = (callback: (obj: DouyuMessage) => void) => {
         if (this.worker === undefined) {
             this.cacheProxyCallback = callback;
         } else {

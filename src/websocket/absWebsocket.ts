@@ -5,11 +5,12 @@ import { log4js } from "../global"
 
 
 const logger = log4js.getLogger('AbsDouyuWebsocket');
+
 export default abstract class AbsDouyuWebsocket {
     private url: string;
     private dyWebsocket!: WebSocket;
     private bufferCoder = new BufferCoder();
-    private msgHandler: (obj: any) => void = (obj: any) => { console.log(obj) };
+    private msgHandler: (msg: DouyuMessage) => void = (msg: DouyuMessage) => { console.log(msg) };
 
     public constructor(url: string = '') {
         this.url = url;
@@ -24,15 +25,23 @@ export default abstract class AbsDouyuWebsocket {
     }
 
     /**
-    * 
-    * @param msgHandler 
-    */
-    protected onopen = async (/*msgHandler: (obj: any) => void*/): Promise<void> => {
+     *  websocket on open 
+     *   then  login .
+     */
+    protected onopen = async (): Promise<void> => {
         this.dyWebsocket.onopen = async (event: WebSocket.OpenEvent) => {
-            this.login(/*msgHandler*/)
+            this.login()
         }
     }
 
+    /**
+     * 发送给斗鱼ws 的消息
+     * 可以为对象 {type:xxx, key:value ... }
+     * 也可以是字符串  type@=xxx/key@=value/ ...
+     * 
+     * 会自动把对象编码成字符串 , 然后把字符串按斗鱼协议编码发送
+     * @param content 消息
+     */
     public send = async (content: string | object): Promise<void> => {
         if (this.dyWebsocket.readyState === this.dyWebsocket.OPEN) {
             let msg: string;
@@ -57,10 +66,10 @@ export default abstract class AbsDouyuWebsocket {
     /**
      * 一个心跳的封装 
      * @param period 心跳间隔
-     * @param describe 心跳描述 ...
+     * @param describe 心跳描述, roomid 之类的
      */
     protected heartbeat = async (period: number, describe?: any): Promise<NodeJS.Timeout> => {
-        // 立即发送一次心跳
+        // 立即发送一次心跳
         this.send(this.heartbeatContent());
         // 返回是为了之后 取消定时
         return setInterval(() => {
@@ -75,7 +84,7 @@ export default abstract class AbsDouyuWebsocket {
      * 
      * @param callback 消息回调  默认直接 console.log(obj)
      */
-    protected onmessage = async (callback: (obj: any) => void = (obj) => console.log(obj)): Promise<void> => {
+    protected onmessage = async (callback: (msg: DouyuMessage) => void = (msg) => console.log(msg)): Promise<void> => {
         this.dyWebsocket.onmessage = async (ev: WebSocket.MessageEvent) => {
             this.bufferCoder.decode(ev.data as Buffer, callback);
         };

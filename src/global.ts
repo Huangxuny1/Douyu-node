@@ -11,11 +11,17 @@ log4js.configure({
     },
     fileout: {
       type: 'file',
-      filename: 'app.log'
+      filename: 'douyu',
+      pattern: "yyyy-MM-dd.log",
+      alwaysIncludePattern: true,
+      maxLogSize: 1024000,
+      backups: 4,
     },
+    
   },
   categories: {
-    default: { appenders: ['consoleout', 'fileout'], level: 'info' },
+    default: { appenders: ['fileout'], level: 'debug' },
+    console: {appenders: ['consoleout'], level: 'info'}
   }
 });
 

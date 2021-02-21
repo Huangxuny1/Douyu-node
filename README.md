@@ -14,7 +14,7 @@ Douyu 默认会开启两个 websocket 连接
 
 ## Screenshot
 
-![screenshot.gif](https://github.com/Huangxuny1/Douyu-node/blob/master/doc/screenshot.gif?raw=true)
+![screenshot.gif](doc/screenshot.gif)
 
 ## Usage
 
@@ -84,9 +84,6 @@ client.setBarrageMsgCallback(obj=>{
 ---
 
 
-### Contact me
-
-![wechat.jpg](https://github.com/Huangxuny1/Douyu-node/blob/master/doc/wechat.JPG?raw=true)
 
 ### 免责 
 
